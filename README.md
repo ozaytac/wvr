@@ -1,20 +1,54 @@
 # Light Aircraft Game: A lightweight, scalable, gym-wrapped aircraft competitive environment with baseline reinforcement learning algorithms
-We provide a competitive environment for red and blue aircrafts games, which includes single control setting, 1v1 setting and 2v2 setting. The flight dynamics based on JSBSIM, and missile dynamics based on our implementation of proportional guidance. We also provide ppo and mappo implementation for self-play or vs-baseline training. 
+
+## Attribution
+🔗 **Forked and enhanced based on the original work by [andrekuros](https://github.com/andrekuros)**  
+📚 **Original detailed implementation can be found at: https://github.com/andrekuros/CloseAirCombatPettingZoo**
+
+## Enhancements in This Fork
+- ✅ **Fixed Gymnasium API compatibility** - Resolved ValueError with Gymnasium v1.2.0
+- ✅ **Updated environment wrappers** - Enhanced multiprocessing compatibility
+- ✅ **Added comprehensive documentation** - Complete usage guides and troubleshooting
+- ✅ **Improved installation process** - Updated requirements and dependencies
+
+---
+
+We provide a competitive environment for red and blue aircrafts games, which includes single control setting, 1v1 setting and 2v2 setting. The flight dynamics based on JSBSIM, and missile dynamics based on our implementation of proportional guidance. We also provide ppo and mappo implementation for self-play or vs-baseline training.
 
 ![fromework](assets/framework.jpg)
 
 ## Install 
 
+### Method 1: Using requirements.txt (Recommended)
 ```shell
-# create python env
-conda create -n jsbsim python=3.8
-# install dependency
-pip install torch pymap3d jsbsim==1.1.6 geographiclib gym==0.20.0 wandb icecream setproctitle. 
+# Create python environment
+conda create -n wvr python=3.8
+conda activate wvr
 
-- Download Shapely‑1.7.1‑cp38‑cp38‑win_amd64.whl from [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#shapely), and `pip install shaply` from local file.
+# Install all dependencies
+pip install -r requirements.txt
 
-- Initialize submodules(*JSBSim-Team/jsbsim*): `git submodule init; git submodule update`
+# Initialize submodules (if needed)
+git submodule init
+git submodule update
 ```
+
+### Method 2: Manual Installation
+```shell
+# Create python environment
+conda create -n wvr python=3.8
+conda activate wvr
+
+# Install core dependencies
+pip install torch pymap3d jsbsim geographiclib gymnasium wandb icecream setproctitle
+
+# Note: This fork works with both gym and gymnasium
+# Gymnasium v1.2.0+ is supported with backward compatibility
+```
+
+### Additional Notes
+- **Gymnasium Compatibility**: This fork includes fixes for Gymnasium v1.2.0+ API changes
+- **Python Version**: Tested with Python 3.8-3.13
+- **Platform**: Works on macOS, Linux, and Windows
 ## Envs
 We provide all task configs in  `envs/JSBSim/configs`, each config corresponds to a task.
 
