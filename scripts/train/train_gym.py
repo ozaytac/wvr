@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys
 import os
-import gym
+import gymnasium as gym
 import wandb
 import socket
 import torch
@@ -23,12 +23,24 @@ class GymEnv:
         self.observation_space = self.env.observation_space
 
     def reset(self):
-        observation = self.env.reset()
+        # In gymnasium, reset() returns (observation, info)
+        result = self.env.reset()
+        if isinstance(result, tuple):
+            observation, info = result
+        else:
+            observation = result
         return np.array(observation).reshape((1, -1))
 
     def step(self, action):
         action = np.array(action).reshape(self.action_shape)
-        observation, reward, done, info = self.env.step(action)
+        result = self.env.step(action)
+        if len(result) == 5:
+            # New Gymnasium API: observation, reward, terminated, truncated, info
+            observation, reward, terminated, truncated, info = result
+            done = terminated or truncated
+        else:
+            # Old Gym API: observation, reward, done, info
+            observation, reward, done, info = result
         observation = np.array(observation).reshape((1, -1))
         done = np.array(done).reshape((1,-1))
         reward = np.array(reward).reshape((1, -1))
@@ -41,7 +53,10 @@ class GymEnv:
         self.env.close()
     
     def seed(self, seed=None):
-        return self.env.seed(seed)
+        # In gymnasium, seeding is handled during reset() or through action/observation spaces
+        if seed is not None:
+            self.env.action_space.seed(seed)
+            self.env.observation_space.seed(seed)
     
 
 class GymHybridEnv(GymEnv):
@@ -54,14 +69,26 @@ class GymHybridEnv(GymEnv):
         self.observation_space = self.env.observation_space
     
     def reset(self):
-        observation = self.env.reset()
+        # In gymnasium, reset() returns (observation, info)
+        result = self.env.reset()
+        if isinstance(result, tuple):
+            observation, info = result
+        else:
+            observation = result
         return np.array(observation).reshape((1, -1))
 
     def step(self, action):
         action = np.array(action).reshape(self.action_shape)
         discrete_a, continuous_a = action[:self.discrete_dims].astype(np.int32), action[self.discrete_dims:]
         action = (discrete_a, continuous_a)
-        observation, reward, done, info = self.env.step(action)
+        result = self.env.step(action)
+        if len(result) == 5:
+            # New Gymnasium API: observation, reward, terminated, truncated, info
+            observation, reward, terminated, truncated, info = result
+            done = terminated or truncated
+        else:
+            # Old Gym API: observation, reward, done, info
+            observation, reward, done, info = result
         observation = np.array(observation).reshape((1, -1))
         done = np.array(done).reshape((1,-1))
         reward = np.array(reward).reshape((1, -1))
@@ -72,6 +99,12 @@ class GymHybridEnv(GymEnv):
 
     def close(self):
         pass
+    
+    def seed(self, seed=None):
+        # In gymnasium, seeding is handled during reset() or through action/observation spaces
+        if seed is not None:
+            self.env.action_space.seed(seed)
+            self.env.observation_space.seed(seed)
 
 
 def make_train_env(all_args):

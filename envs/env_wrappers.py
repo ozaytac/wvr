@@ -189,7 +189,15 @@ def worker(remote: Connection, parent_remote: Connection, env_fn_wrappers):
         env_fn_wrappers (method): functions to create gym.Env instance.
     """
     def step_env(env, action):
-        obs, reward, done, info = env.step(action)
+        result = env.step(action)
+        if len(result) == 5:
+            # New Gymnasium API: observation, reward, terminated, truncated, info
+            obs, reward, terminated, truncated, info = result
+            done = terminated or truncated
+        else:
+            # Old Gym API: observation, reward, done, info
+            obs, reward, done, info = result
+            
         if 'bool' in done.__class__.__name__:
             if done:
                 obs = env.reset()
